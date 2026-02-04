@@ -28,7 +28,7 @@ erDiagram
     Funcionarios ||--o{ Autodiagnosticos : "revisa"
     Funcionarios ||--o{ AuditLog : "genera"
     Funcionarios ||--o{ FuncionarioUnidades : "trabaja en"
-    
+
     UnidadesAtencion ||--o{ Reuniones : "aloja"
     UnidadesAtencion ||--o{ FuncionarioUnidades : "tiene asignados"
         varchar direccion "Dirección física"
@@ -85,7 +85,7 @@ erDiagram
         boolean activo "Unidad operativa"
         text observaciones "Notas adicionales"
     }
-    
+
     FuncionarioUnidades {
         int id_func_unidad PK "Identificador único"
         int id_funcionario FK "Funcionario asignado"
@@ -93,7 +93,7 @@ erDiagram
         datetime fecha_asignacion "Cuándo fue asignado"
         boolean es_responsable "Si es responsable"
     }
-    
+
     Reuniones {
         int id_reunion PK "Identificador único"
         int id_empresa FK "Empresa involucrada"

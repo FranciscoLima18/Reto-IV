@@ -2,7 +2,7 @@
 
 ## Diagrama Conceptual
 
-```
+````
 Empresas ─┬─< Reuniones
           ├─< HistorialEmpresa
           ├─< EmpresaTags
@@ -10,7 +10,7 @@ Empresas ─┬─< Reuniones
 
 UnidadesAtencion ─┬─< Reuniones
                   └─< FuncionarioUnidades ─> Funcionarios
-          
+
 Funcionarios ─┬─< Reuniones
               └─< FuncionarioUnidades ─> UnidadesAtencion
 
@@ -404,19 +404,19 @@ ALTER TABLE Reuniones
 
 ALTER TABLE EmpresaTags
   ADD CONSTRAINT fk_empresatag_funcionario
-ALTER TABLE Reuniones 
-  ADD CONSTRAINT fk_reunion_unidad 
+ALTER TABLE Reuniones
+  ADD CONSTRAINT fk_reunion_unidad
   FOREIGN KEY (id_unidad) REFERENCES UnidadesAtencion(id_unidad);
 
 -- Funcionarios y Unidades
-ALTER TABLE FuncionarioUnidades 
-  ADD CONSTRAINT fk_funcunidad_funcionario 
-  FOREIGN KEY (id_funcionario) REFERENCES Funcionarios(id_funcionario) 
+ALTER TABLE FuncionarioUnidades
+  ADD CONSTRAINT fk_funcunidad_funcionario
+  FOREIGN KEY (id_funcionario) REFERENCES Funcionarios(id_funcionario)
   ON DELETE CASCADE;
 
-ALTER TABLE FuncionarioUnidades 
-  ADD CONSTRAINT fk_funcunidad_unidad 
-  FOREIGN KEY (id_unidad) REFERENCES UnidadesAtencion(id_unidad) 
+ALTER TABLE FuncionarioUnidades
+  ADD CONSTRAINT fk_funcunidad_unidad
+  FOREIGN KEY (id_unidad) REFERENCES UnidadesAtencion(id_unidad)
   ON DELETE CASCADE;
 
 -- Programas e Instrumentos
@@ -448,9 +448,10 @@ WHERE r.estado = 'programada'
   AND r.fecha_hora >= NOW()
 GROUP BY u.id_unidad
 ORDER BY reuniones_programadas DESC;
-```
+````
 
 ### 6. Funcionarios por unidad
+
 ```sql
 SELECT u.nombre as unidad,
        COUNT(fu.id_funcionario) as total_funcionarios,
@@ -464,12 +465,14 @@ GROUP BY u.id_unidad;
 ---
 
 ## OREIGN KEY (id_reunion) REFERENCES Reuniones(id_reunion)
-  ON DELETE CASCADE;
+
+ON DELETE CASCADE;
 
 ALTER TABLE Recordatorios
-  ADD CONSTRAINT fk_recordatorio_empresa
-  FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa);
-```
+ADD CONSTRAINT fk_recordatorio_empresa
+FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa);
+
+````
 
 ---
 
@@ -513,7 +516,7 @@ WHERE e.estado = 'cliente'
 GROUP BY e.id_empresa
 HAVING ultima_reunion < DATE_SUB(NOW(), INTERVAL 3 MONTH)
    OR ultima_reunion IS NULL;
-```
+````
 
 ### 2. Métricas de evolución anual
 
