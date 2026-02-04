@@ -31,174 +31,189 @@ erDiagram
 
     UnidadesAtencion ||--o{ Reuniones : "aloja"
     UnidadesAtencion ||--o{ FuncionarioUnidades : "tiene asignados"
-        varchar direccion "Dirección física"
-        varchar telefono "Contacto telefónico"
+
+    TiposReunion ||--o{ Reuniones : "clasifica"
+    Reuniones ||--o{ Recordatorios : "genera"
+
+    Tags ||--o{ EmpresaTags : "categoriza"
+
+    Programas ||--o{ Instrumentos : "contiene"
+    Instrumentos ||--o{ EmpresaInstrumentos : "es solicitado"
+
+    Empresas {
+        int id_empresa PK "Identificador unico"
+        varchar rut UK "RUT de la empresa"
+        varchar nombre_comercial "Nombre comercial"
+        varchar razon_social "Razon social"
+        varchar rubro "Sector industria"
+        varchar direccion "Direccion fisica"
+        varchar telefono "Contacto telefonico"
         varchar email "Email principal"
         datetime fecha_registro "Fecha de alta"
-        enum estado "pre-cliente, cliente, inactivo, cerrado, expandido"
-        enum etapa_incubadora "ninguna, idea, validacion, ejecucion, asesoria"
+        enum estado "pre-cliente cliente inactivo cerrado expandido"
+        enum etapa_incubadora "ninguna idea validacion ejecucion asesoria"
         varchar responsable_empresa "Contacto principal"
         varchar cargo_responsable "Cargo del contacto"
         text observaciones "Notas adicionales"
     }
 
     HistorialEmpresa {
-        int id_historial PK "Identificador único"
+        int id_historial PK "Identificador unico"
         int id_empresa FK "Referencia a Empresas"
-        year anio UK "Año del registro"
-        decimal facturacion "Facturación anual USD"
-        int cantidad_empleados "Número de empleados"
-        enum area_innovacion "marketing, finanzas, tics, comercial, etc"
-        text observaciones "Notas del período"
-        datetime fecha_registro "Cuándo se registró"
+        year anio UK "Anio del registro"
+        decimal facturacion "Facturacion anual USD"
+        int cantidad_empleados "Numero de empleados"
+        enum area_innovacion "marketing finanzas tics comercial etc"
+        text observaciones "Notas del periodo"
+        datetime fecha_registro "Cuando se registro"
     }
 
     Funcionarios {
-        int id_funcionario PK "Identificador único"
+        int id_funcionario PK "Identificador unico"
         varchar username UK "Usuario de login"
-        varchar password_hash "Contraseña encriptada"
+        varchar password_hash "Contrasenha encriptada"
         varchar nombre_completo "Nombre del funcionario"
         varchar email UK "Email corporativo"
-        enum rol "admin, coordinador, asesor, recepcion"
+        enum rol "admin coordinador asesor recepcion"
         boolean activo "Usuario activo"
         datetime fecha_alta "Fecha de ingreso"
-        datetime ultimo_login "Último acceso"
+        datetime ultimo_login "Ultimo acceso"
     }
 
     TiposReunion {
-        int id_tipo_reunion PK "Identificador único"
-        varchar nombre UK "primer_contacto, seguimiento, derivacion"
-        text descripcion "Descripción del tipo"
+        int id_tipo_reunion PK "Identificador unico"
+        varchar nombre UK "primer_contacto seguimiento derivacion"
+        text descripcion "Descripcion del tipo"
         boolean requiere_seguimiento "Genera recordatorios"
     }
 
     UnidadesAtencion {
-        int id_unidad PK "Identificador único"
+        int id_unidad PK "Identificador unico"
         varchar nombre UK "Nombre de la unidad"
-        enum tipo "fisica, virtual"
-        varchar direccion "Dirección física"
-        varchar ciudad "Salto, Guaviyu de Arapey, etc"
-        varchar telefono "Teléfono contacto"
+        enum tipo "fisica virtual"
+        varchar direccion "Direccion fisica"
+        varchar ciudad "Salto Guaviyu de Arapey etc"
+        varchar telefono "Telefono contacto"
         varchar email "Email de la unidad"
-        varchar horario_atencion "Horarios de atención"
-        int capacidad_simultanea "Reuniones simultáneas"
+        varchar horario_atencion "Horarios de atencion"
+        int capacidad_simultanea "Reuniones simultaneas"
         boolean activo "Unidad operativa"
         text observaciones "Notas adicionales"
     }
 
     FuncionarioUnidades {
-        int id_func_unidad PK "Identificador único"
+        int id_func_unidad PK "Identificador unico"
         int id_funcionario FK "Funcionario asignado"
-        int id_unidad FK "Unidad de atención"
-        datetime fecha_asignacion "Cuándo fue asignado"
+        int id_unidad FK "Unidad de atencion"
+        datetime fecha_asignacion "Cuando fue asignado"
         boolean es_responsable "Si es responsable"
     }
 
     Reuniones {
-        int id_reunion PK "Identificador único"
+        int id_reunion PK "Identificador unico"
         int id_empresa FK "Empresa involucrada"
         int id_funcionario FK "Funcionario responsable"
-        int id_tipo_reunion FK "Tipo de reunión"
+        int id_tipo_reunion FK "Tipo de reunion"
         int id_unidad FK "Unidad donde se realiza"
         datetime fecha_hora "Fecha y hora programada"
-        enum modalidad "presencial, telefonica, online, en_empresa"
-        int duracion_minutos "Duración en minutos"
-        enum estado "programada, realizada, cancelada, reprogramada"
+        enum modalidad "presencial telefonica online en_empresa"
+        int duracion_minutos "Duracion en minutos"
+        enum estado "programada realizada cancelada reprogramada"
         text agenda "Temas a tratar"
         text acta "Resumen de lo tratado"
         text acuerdos "Compromisos acordados"
         varchar id_google_calendar "ID evento Google Calendar"
-        date proximo_contacto "Fecha próxima reunión"
+        date proximo_contacto "Fecha proxima reunion"
     }
 
     Tags {
-        int id_tag PK "Identificador único"
+        int id_tag PK "Identificador unico"
         varchar nombre UK "Nombre del tag"
-        enum categoria "problema, necesidad, oportunidad, riesgo"
+        enum categoria "problema necesidad oportunidad riesgo"
         varchar color "Color hex para UI"
         boolean activo "Tag disponible"
     }
 
     EmpresaTags {
-        int id_empresa_tag PK "Identificador único"
+        int id_empresa_tag PK "Identificador unico"
         int id_empresa FK "Empresa etiquetada"
         int id_tag FK "Tag asignado"
-        int id_funcionario FK "Quién asignó"
-        datetime fecha_asignacion "Cuándo se asignó"
+        int id_funcionario FK "Quien asigno"
+        datetime fecha_asignacion "Cuando se asigno"
         text observaciones "Contexto del tag"
     }
 
     Programas {
-        int id_programa PK "Identificador único"
+        int id_programa PK "Identificador unico"
         varchar nombre UK "Nombre del programa"
-        text descripcion "Descripción detallada"
-        enum tipo "incubadora, innovacion, financiero, capacitacion"
+        text descripcion "Descripcion detallada"
+        enum tipo "incubadora innovacion financiero capacitacion"
         date fecha_inicio "Inicio del programa"
         date fecha_fin "Fin del programa"
         boolean activo "Programa disponible"
-        varchar poa_vinculado "Código POA"
+        varchar poa_vinculado "Codigo POA"
     }
 
     Instrumentos {
-        int id_instrumento PK "Identificador único"
+        int id_instrumento PK "Identificador unico"
         int id_programa FK "Programa al que pertenece"
         varchar nombre "Nombre del instrumento"
         text descripcion "Detalles del instrumento"
-        text requisitos "Requisitos de aplicación"
-        decimal monto_disponible "Monto económico"
-        date fecha_apertura "Desde cuándo aplicar"
-        date fecha_cierre "Hasta cuándo aplicar"
+        text requisitos "Requisitos de aplicacion"
+        decimal monto_disponible "Monto economico"
+        date fecha_apertura "Desde cuando aplicar"
+        date fecha_cierre "Hasta cuando aplicar"
         boolean activo "Instrumento disponible"
     }
 
     EmpresaInstrumentos {
-        int id_empresa_instrumento PK "Identificador único"
+        int id_empresa_instrumento PK "Identificador unico"
         int id_empresa FK "Empresa postulante"
         int id_instrumento FK "Instrumento solicitado"
         int id_funcionario FK "Funcionario gestor"
-        datetime fecha_postulacion "Fecha de postulación"
-        enum estado "en_proceso, aprobado, rechazado, desistido, finalizado"
+        datetime fecha_postulacion "Fecha de postulacion"
+        enum estado "en_proceso aprobado rechazado desistido finalizado"
         decimal monto_aprobado "Monto aprobado"
-        date fecha_resolucion "Fecha de decisión"
+        date fecha_resolucion "Fecha de decision"
         text observaciones "Notas del proceso"
     }
 
     Recordatorios {
-        int id_recordatorio PK "Identificador único"
-        int id_reunion FK "Reunión relacionada opcional"
+        int id_recordatorio PK "Identificador unico"
+        int id_reunion FK "Reunion relacionada opcional"
         int id_empresa FK "Empresa objetivo"
         int id_funcionario FK "Funcionario responsable"
-        enum tipo "reunion_proxima, seguimiento, documento_pendiente"
-        enum medio "email, whatsapp, ambos"
-        datetime fecha_envio "Cuándo enviar"
+        enum tipo "reunion_proxima seguimiento documento_pendiente"
+        enum medio "email whatsapp ambos"
+        datetime fecha_envio "Cuando enviar"
         text mensaje "Contenido del recordatorio"
-        enum estado "pendiente, enviado, fallido, cancelado"
-        datetime fecha_envio_real "Cuándo se envió"
+        enum estado "pendiente enviado fallido cancelado"
+        datetime fecha_envio_real "Cuando se envio"
         text error_mensaje "Motivo de fallo"
     }
 
     Autodiagnosticos {
-        int id_autodiagnostico PK "Identificador único"
-        int id_empresa FK "Empresa que completó"
-        datetime fecha_realizado "Cuándo se completó"
+        int id_autodiagnostico PK "Identificador unico"
+        int id_empresa FK "Empresa que completo"
+        datetime fecha_realizado "Cuando se completo"
         json respuestas_json "Respuestas en JSON"
         int puntaje_total "Score 0-100"
-        text areas_oportunidad "Áreas para mejorar"
-        text recomendaciones "Recomendaciones automáticas"
+        text areas_oportunidad "Areas para mejorar"
+        text recomendaciones "Recomendaciones automaticas"
         int revisado_por FK "Funcionario revisor"
-        datetime fecha_revision "Cuándo fue revisado"
+        datetime fecha_revision "Cuando fue revisado"
     }
 
     AuditLog {
-        int id_log PK "Identificador único"
-        int id_funcionario FK "Usuario que ejecutó"
+        int id_log PK "Identificador unico"
+        int id_funcionario FK "Usuario que ejecuto"
         varchar tabla_afectada "Tabla modificada"
         int id_registro "ID del registro"
-        enum accion "INSERT, UPDATE, DELETE, LOGIN, LOGOUT"
+        enum accion "INSERT UPDATE DELETE LOGIN LOGOUT"
         json datos_anteriores "Estado previo"
         json datos_nuevos "Estado nuevo"
         varchar ip_address "IP del usuario"
-        datetime timestamp "Momento de la acción"
+        datetime timestamp "Momento de la accion"
     }
 ```
 
