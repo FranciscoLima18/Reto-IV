@@ -168,7 +168,7 @@ Catálogo de tipos de reunión del sistema.
 
 ---
 
-## 5. Reuniones
+## 7. Reuniones
 
 Registro de todas las reuniones con empresas. Núcleo del seguimiento.
 
@@ -178,6 +178,7 @@ Registro de todas las reuniones con empresas. Núcleo del seguimiento.
 | **id_empresa**      | INT                                                          | FK → Empresas(id_empresa), NOT NULL          | Empresa involucrada                   |
 | **id_funcionario**  | INT                                                          | FK → Funcionarios(id_funcionario), NOT NULL  | Funcionario a cargo                   |
 | **id_tipo_reunion** | INT                                                          | FK → TiposReunion(id_tipo_reunion), NOT NULL | Tipo de reunión                       |
+| **id_unidad**       | INT                                                          | FK → UnidadesAtencion(id_unidad)             | Unidad donde se realiza               |
 | fecha_hora          | DATETIME                                                     | NOT NULL                                     | Fecha y hora programada               |
 | modalidad           | ENUM('presencial', 'telefonica', 'online', 'en_empresa')     | NOT NULL                                     | Cómo se realiza                       |
 | duracion_minutos    | INT                                                          |                                              | Duración estimada/real                |
@@ -221,8 +222,8 @@ Sistema de etiquetado para categorizar problemas/necesidades.
 - Legalidad
 
 ---
-9
-## 7. EmpresaTags
+
+## 9. EmpresaTags
 
 Relación muchos-a-muchos entre empresas y tags.
 
@@ -245,8 +246,8 @@ Relación muchos-a-muchos entre empresas y tags.
 - `idx_tag` en (id_tag)
 
 ---
-10
-## 8. Programas
+
+## 10. Programas
 
 Programas de apoyo disponibles en Salto Innova.
 
@@ -262,8 +263,8 @@ Programas de apoyo disponibles en Salto Innova.
 | poa_vinculado   | VARCHAR(100)                                                           |                    | Código POA si corresponde    |
 
 ---
-11
-## 9. Instrumentos
+
+## 11. Instrumentos
 
 Instrumentos específicos dentro de programas (ej: subsidios, cursos, etc).
 
