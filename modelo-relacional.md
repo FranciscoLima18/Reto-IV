@@ -2,7 +2,7 @@
 
 ## Diagrama Conceptual
 
-````
+```
 Empresas ─┬─< Reuniones
           ├─< HistorialEmpresa
           ├─< EmpresaTags
@@ -13,6 +13,7 @@ UnidadesAtencion ─┬─< Reuniones
 
 Funcionarios ─┬─< Reuniones
               └─< FuncionarioUnidades ─> UnidadesAtencion
+```
 
 ## 1. Empresas
 
@@ -99,28 +100,30 @@ Usuarios del sistema con diferentes roles y permisos.
 
 Sedes o lugares físicos/virtuales donde Salto Innova atiende empresas.
 
-| Campo                  | Tipo                                     | Restricciones             | Descripción                            |
-| ---------------------- | ---------------------------------------- | ------------------------- | -------------------------------------- |
-| **id_unidad**          | INT                                      | PK, AUTO_INCREMENT        | Identificador único                    |
-| nombre                 | VARCHAR(200)                             | UNIQUE, NOT NULL          | Nombre de la unidad                    |
-| tipo                   | ENUM('fisica', 'virtual')                | NOT NULL                  | Tipo de unidad                         |
-| direccion              | VARCHAR(300)                             |                           | Dirección física (si aplica)           |
-| ciudad                 | VARCHAR(100)                             | NOT NULL                  | Ciudad (ej: Salto, Guaviyu de Arapey) |
-| telefono               | VARCHAR(20)                              |                           | Teléfono de contacto                   |
-| email                  | VARCHAR(100)                             |                           | Email de la unidad                     |
-| horario_atencion       | VARCHAR(200)                             |                           | Horarios de atención                   |
-| capacidad_simultanea   | INT                                      |                           | Reuniones simultáneas posibles         |
-| activo                 | BOOLEAN                                  | DEFAULT TRUE              | Unidad operativa                       |
-| observaciones          | TEXT                                     |                           | Notas adicionales                      |
-| created_at             | DATETIME                                 | DEFAULT CURRENT_TIMESTAMP |                                        |
+| Campo                | Tipo                      | Restricciones             | Descripción                           |
+| -------------------- | ------------------------- | ------------------------- | ------------------------------------- |
+| **id_unidad**        | INT                       | PK, AUTO_INCREMENT        | Identificador único                   |
+| nombre               | VARCHAR(200)              | UNIQUE, NOT NULL          | Nombre de la unidad                   |
+| tipo                 | ENUM('fisica', 'virtual') | NOT NULL                  | Tipo de unidad                        |
+| direccion            | VARCHAR(300)              |                           | Dirección física (si aplica)          |
+| ciudad               | VARCHAR(100)              | NOT NULL                  | Ciudad (ej: Salto, Guaviyu de Arapey) |
+| telefono             | VARCHAR(20)               |                           | Teléfono de contacto                  |
+| email                | VARCHAR(100)              |                           | Email de la unidad                    |
+| horario_atencion     | VARCHAR(200)              |                           | Horarios de atención                  |
+| capacidad_simultanea | INT                       |                           | Reuniones simultáneas posibles        |
+| activo               | BOOLEAN                   | DEFAULT TRUE              | Unidad operativa                      |
+| observaciones        | TEXT                      |                           | Notas adicionales                     |
+| created_at           | DATETIME                  | DEFAULT CURRENT_TIMESTAMP |                                       |
 
 **Datos ejemplo:**
+
 - Sede Central - Salto (física)
 - Biblioteca Salto (física)
 - Guaviyu de Arapey (física)
 - Atención Virtual (virtual)
 
 **Índices:**
+
 - `idx_ciudad` en (ciudad)
 - `idx_tipo_activo` en (tipo, activo)
 
@@ -130,18 +133,20 @@ Sedes o lugares físicos/virtuales donde Salto Innova atiende empresas.
 
 Relación muchos-a-muchos: funcionarios pueden atender en múltiples unidades.
 
-| Campo                | Tipo     | Restricciones                                       | Descripción                  |
-| -------------------- | -------- | --------------------------------------------------- | ---------------------------- |
-| **id_func_unidad**   | INT      | PK, AUTO_INCREMENT                                  | Identificador único          |
-| **id_funcionario**   | INT      | FK → Funcionarios(id_funcionario), NOT NULL         | Funcionario asignado         |
-| **id_unidad**        | INT      | FK → UnidadesAtencion(id_unidad), NOT NULL          | Unidad de atención           |
-| fecha_asignacion     | DATETIME | DEFAULT CURRENT_TIMESTAMP                           | Cuándo fue asignado          |
-| es_responsable       | BOOLEAN  | DEFAULT FALSE                                       | Si es responsable de la sede |
+| Campo              | Tipo     | Restricciones                               | Descripción                  |
+| ------------------ | -------- | ------------------------------------------- | ---------------------------- |
+| **id_func_unidad** | INT      | PK, AUTO_INCREMENT                          | Identificador único          |
+| **id_funcionario** | INT      | FK → Funcionarios(id_funcionario), NOT NULL | Funcionario asignado         |
+| **id_unidad**      | INT      | FK → UnidadesAtencion(id_unidad), NOT NULL  | Unidad de atención           |
+| fecha_asignacion   | DATETIME | DEFAULT CURRENT_TIMESTAMP                   | Cuándo fue asignado          |
+| es_responsable     | BOOLEAN  | DEFAULT FALSE                               | Si es responsable de la sede |
 
 **Restricciones:**
+
 - `UNIQUE(id_funcionario, id_unidad)` - Evitar asignaciones duplicadas
 
 **Índices:**
+
 - `idx_funcionario` en (id_funcionario)
 - `idx_unidad` en (id_unidad)
 
@@ -377,137 +382,134 @@ Registro de auditoría para seguridad y trazabilidad.
 
 ---
 
-## Relaciones Principales
+## Relaciones Principales (Foreign Keys)
 
-### Claves Foráneas
+### Claves Foráneas Detalladas
 
 ```sql
--- Empresas relacionadas
+-- Tabla: HistorialEmpresa
 ALTER TABLE HistorialEmpresa
-  ADD CONSTRAINT fk_historial_empresa
-  FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa)
-  ON DELETE CASCADE;
+ADD CONSTRAINT fk_historial_empresa
+FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa)
+ON DELETE CASCADE;
+
+-- Tabla: Reuniones
+ALTER TABLE Reuniones
+ADD CONSTRAINT fk_reunion_empresa
+FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa);
+
+ALTER TABLE Reuniones
+ADD CONSTRAINT fk_reunion_funcionario
+FOREIGN KEY (id_funcionario) REFERENCES Funcionarios(id_funcionario);
+
+ALTER TABLE Reuniones
+ADD CONSTRAINT fk_reunion_tipo
+FOREIGN KEY (id_tipo_reunion) REFERENCES TiposReunion(id_tipo);
+
+ALTER TABLE Reuniones
+ADD CONSTRAINT fk_reunion_unidad
+FOREIGN KEY (id_unidad) REFERENCES UnidadesAtencion(id_unidad);
+
+-- Tabla: EmpresaTags
+ALTER TABLE EmpresaTags
+ADD CONSTRAINT fk_empresatag_empresa
+FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa)
+ON DELETE CASCADE;
 
 ALTER TABLE EmpresaTags
-  ADD CONSTRAINT fk_empresatag_empresa
-  FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa)
-  ON DELETE CASCADE;
+ADD CONSTRAINT fk_empresatag_tag
+FOREIGN KEY (id_tag) REFERENCES Tags(id_tag)
+ON DELETE CASCADE;
 
-ALTER TABLE Reuniones
-  ADD CONSTRAINT fk_reunion_empresa
-  FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa)
-  ON DELETE CASCADE;
-
--- Funcionarios relacionados
-ALTER TABLE Reuniones
-  ADD CONSTRAINT fk_reunion_funcionario
-  FOREIGN KEY (id_funcionario) REFERENCES Funcionarios(id_funcionario);
-
-ALTER TABLE EmpresaTags
-  ADD CONSTRAINT fk_empresatag_funcionario
-ALTER TABLE Reuniones
-  ADD CONSTRAINT fk_reunion_unidad
-  FOREIGN KEY (id_unidad) REFERENCES UnidadesAtencion(id_unidad);
-
--- Funcionarios y Unidades
-ALTER TABLE FuncionarioUnidades
-  ADD CONSTRAINT fk_funcunidad_funcionario
-  FOREIGN KEY (id_funcionario) REFERENCES Funcionarios(id_funcionario)
-  ON DELETE CASCADE;
-
-ALTER TABLE FuncionarioUnidades
-  ADD CONSTRAINT fk_funcunidad_unidad
-  FOREIGN KEY (id_unidad) REFERENCES UnidadesAtencion(id_unidad)
-  ON DELETE CASCADE;
-
--- Programas e Instrumentos
-ALTER TABLE Instrumentos
-  ADD CONSTRAINT fk_instrumento_programa
-  FOREIGN KEY (id_programa) REFERENCES Programas(id_programa);
+-- Tabla: EmpresaInstrumentos
+ALTER TABLE EmpresaInstrumentos
+ADD CONSTRAINT fk_empresainst_empresa
+FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa)
+ON DELETE CASCADE;
 
 ALTER TABLE EmpresaInstrumentos
-  ADD CONSTRAINT fk_empinstr_empresa
-  FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa);
+ADD CONSTRAINT fk_empresainst_programa
+FOREIGN KEY (id_programa) REFERENCES Programas(id_programa);
 
 ALTER TABLE EmpresaInstrumentos
-  ADD CONSTRAINT fk_empinstr_instrumento
-  FOREIGN KEY (id_instrumento) REFERENCES Instrumentos(id_instrumento);
+ADD CONSTRAINT fk_empresainst_instrumento
+FOREIGN KEY (id_instrumento) REFERENCES Instrumentos(id_instrumento);
 
--- Reuniones y Recordatorios
+-- Tabla: FuncionarioUnidades
+ALTER TABLE FuncionarioUnidades
+ADD CONSTRAINT fk_funcunidad_funcionario
+FOREIGN KEY (id_funcionario) REFERENCES Funcionarios(id_funcionario)
+ON DELETE CASCADE;
+
+ALTER TABLE FuncionarioUnidades
+ADD CONSTRAINT fk_funcunidad_unidad
+FOREIGN KEY (id_unidad) REFERENCES UnidadesAtencion(id_unidad)
+ON DELETE CASCADE;
+
+-- Tabla: Recordatorios
 ALTER TABLE Recordatorios
-  ADD CONSTRAINT fk_recordatorio_reunion
-  FQueries Adicionales
+ADD CONSTRAINT fk_recordatorio_empresa
+FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa)
+ON DELETE CASCADE;
 
-### 5. Carga por unidad de atención
-```sql
-SELECT u.nombre as unidad,
-       COUNT(r.id_reunion) as reuniones_programadas,
-       AVG(r.duracion_minutos) as duracion_promedio
-FROM UnidadesAtencion u
-LEFT JOIN Reuniones r ON u.id_unidad = r.id_unidad
-WHERE r.estado = 'programada'
-  AND r.fecha_hora >= NOW()
-GROUP BY u.id_unidad
-ORDER BY reuniones_programadas DESC;
-````
+ALTER TABLE Recordatorios
+ADD CONSTRAINT fk_recordatorio_funcionario
+FOREIGN KEY (id_funcionario) REFERENCES Funcionarios(id_funcionario);
 
-### 6. Funcionarios por unidad
+-- Tabla: Autodiagnosticos
+ALTER TABLE Autodiagnosticos
+ADD CONSTRAINT fk_autodiag_empresa
+FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa)
+ON DELETE CASCADE;
 
-```sql
-SELECT u.nombre as unidad,
-       COUNT(fu.id_funcionario) as total_funcionarios,
-       SUM(CASE WHEN fu.es_responsable THEN 1 ELSE 0 END) as responsables
-FROM UnidadesAtencion u
-LEFT JOIN FuncionarioUnidades fu ON u.id_unidad = fu.id_unidad
-WHERE u.activo = TRUE
-GROUP BY u.id_unidad;
+-- Tabla: AuditLog
+ALTER TABLE AuditLog
+ADD CONSTRAINT fk_auditlog_funcionario
+FOREIGN KEY (id_funcionario) REFERENCES Funcionarios(id_funcionario);
 ```
 
 ---
 
-## OREIGN KEY (id_reunion) REFERENCES Reuniones(id_reunion)
+## Índices Recomendados
 
-ON DELETE CASCADE;
+```sql
+-- Performance para búsquedas frecuentes
+CREATE INDEX idx_empresas_rut ON Empresas(rut);
+CREATE INDEX idx_empresas_estado ON Empresas(estado);
+CREATE INDEX idx_empresas_etapa ON Empresas(etapa_incubadora);
 
-ALTER TABLE Recordatorios
-ADD CONSTRAINT fk_recordatorio_empresa
-FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa);
+-- Reuniones por fecha
+CREATE INDEX idx_reuniones_fecha ON Reuniones(fecha_hora);
+CREATE INDEX idx_reuniones_empresa ON Reuniones(id_empresa);
+CREATE INDEX idx_reuniones_funcionario ON Reuniones(id_funcionario);
+CREATE INDEX idx_reuniones_unidad ON Reuniones(id_unidad);
 
-````
+-- Búsqueda rápida de recordatorios pendientes
+CREATE INDEX idx_recordatorios_pendiente ON Recordatorios(estado, fecha_envio);
 
----
+-- Auditoría
+CREATE INDEX idx_auditlog_funcionario_fecha ON AuditLog(id_funcionario, timestamp);
+CREATE INDEX idx_auditlog_tabla ON AuditLog(tabla_afectada);
 
-## Consideraciones de Diseño
+-- Historial
+CREATE INDEX idx_historial_empresa_anio ON HistorialEmpresa(id_empresa, anio);
 
-### Seguridad
+-- Tags
+CREATE INDEX idx_empresatags_empresa ON EmpresaTags(id_empresa);
+CREATE INDEX idx_empresatags_tag ON EmpresaTags(id_tag);
 
-- **Passwords**: Usar bcrypt/argon2 con salt (mínimo 10 rounds)
-- **Datos sensibles**: Encriptar RUT, facturación en reposo
-- **Auditoría completa**: Tabla AuditLog registra todas las operaciones críticas
-
-### Performance
-
-- Índices en campos de búsqueda frecuente (RUT, fechas, estados)
-- Particionamiento por año en HistorialEmpresa si crece mucho
-- Cache para catálogos (TiposReunion, Tags, Programas)
-
-### Escalabilidad
-
-- Diseño modular permite agregar nuevas tablas sin afectar existentes
-- JSON para datos semi-estructurados (respuestas autodiagnóstico)
-- Sistema de tags flexible para categorización futura
-
-### Historial y Métricas
-
-- HistorialEmpresa permite análisis temporal
-- AuditLog asegura trazabilidad completa
-- Soft deletes en tablas críticas (campo `activo`)
+-- Unidades de atención
+CREATE INDEX idx_unidades_ciudad ON UnidadesAtencion(ciudad);
+CREATE INDEX idx_funcunidad_funcionario ON FuncionarioUnidades(id_funcionario);
+```
 
 ---
 
-## Queries Comunes
+## Consultas Comunes (Ejemplos)
 
 ### 1. Empresas que requieren seguimiento
+
+Identifica clientes sin reuniones en 3 meses.
 
 ```sql
 SELECT e.*, MAX(r.fecha_hora) as ultima_reunion
@@ -517,7 +519,7 @@ WHERE e.estado = 'cliente'
 GROUP BY e.id_empresa
 HAVING ultima_reunion < DATE_SUB(NOW(), INTERVAL 3 MONTH)
    OR ultima_reunion IS NULL;
-````
+```
 
 ### 2. Métricas de evolución anual
 
@@ -558,61 +560,70 @@ WHERE r.estado = 'pendiente'
 ORDER BY r.fecha_envio ASC;
 ```
 
----
+### 5. Carga por unidad de atención
 
-## Diagrama Entidad-Relación (Texto)
-
+```sql
+SELECT u.nombre as unidad,
+       COUNT(r.id_reunion) as reuniones_programadas,
+       AVG(r.duracion_minutos) as duracion_promedio
+FROM UnidadesAtencion u
+LEFT JOIN Reuniones r ON u.id_unidad = r.id_unidad
+WHERE r.estado = 'programada'
+  AND r.fecha_hora >= NOW()
+GROUP BY u.id_unidad
+ORDER BY reuniones_programadas DESC;
 ```
-┌─────────────────┐     1    ∞   ┌──────────────────┐
-│    Empresas     │─────────────<│ HistorialEmpresa │
-│                 │               │                  │
-│ PK id_empresa   │               │ PK id_historial  │
-│    rut          │               │ FK id_empresa    │
-│    nombre       │               │    anio          │
-│    estado       │               │    facturacion   │
-│    etapa        │               │    empleados     │
-└────────┬────────┘               └──────────────────┘
-         │
-         │ 1
-6. **Unidades de atención**: Reflejan sedes físicas (Salto, Guaviyu de Arapey, Biblioteca) y virtuales
-         │
-         │ ∞
-         │
-┌────────┴────────┐     ∞    1   ┌──────────────────┐
-│    Reuniones    │─────────────>│  TiposReunion    │
-│                 │               │                  │
-│ PK id_reunion   │     ∞    1   │ PK id_tipo       │
-│ FK id_empresa   │─────────────>│    nombre        │
-│ FK id_funcionario│              └──────────────────┘
-│ FK id_tipo      │
-│    fecha_hora   │     1    ∞   ┌──────────────────┐
-│    modalidad    │─────────────<│  Recordatorios   │
-│    estado       │               │                  │
-└────────┬────────┘               │ PK id_recordat.. │
-         │                        │ FK id_reunion    │
-         │ ∞                      │ FK id_empresa    │
-         │                        │    fecha_envio   │
-         │ 1                      │    estado        │
-         │                        └──────────────────┘
-┌────────┴────────┐
-│  Funcionarios   │
-│                 │
-│ PK id_funcionar │
-│    username     │
-│    nombre       │
-│    rol          │
-└─────────────────┘
+
+### 6. Funcionarios por unidad
+
+```sql
+SELECT u.nombre as unidad,
+       COUNT(fu.id_funcionario) as total_funcionarios,
+       SUM(CASE WHEN fu.es_responsable THEN 1 ELSE 0 END) as responsables
+FROM UnidadesAtencion u
+LEFT JOIN FuncionarioUnidades fu ON u.id_unidad = fu.id_unidad
+WHERE u.activo = TRUE
+GROUP BY u.id_unidad;
 ```
 
 ---
 
-**Notas Finales:**
+## Consideraciones de Diseño
+
+### Seguridad
+
+- **Passwords**: Usar bcrypt/argon2 con salt (mínimo 10 rounds)
+- **Datos sensibles**: Encriptar RUT, facturación en reposo
+- **Auditoría completa**: Tabla AuditLog registra todas las operaciones críticas
+
+### Performance
+
+- Índices en campos de búsqueda frecuente (RUT, fechas, estados)
+- Particionamiento por año en HistorialEmpresa si crece mucho
+- Cache para catálogos (TiposReunion, Tags, Programas)
+
+### Escalabilidad
+
+- Diseño modular permite agregar nuevas tablas sin afectar existentes
+- JSON para datos semi-estructurados (respuestas autodiagnóstico)
+- Sistema de tags flexible para categorización futura
+
+### Historial y Métricas
+
+- HistorialEmpresa permite análisis temporal
+- AuditLog asegura trazabilidad completa
+- Soft deletes en tablas críticas (campo `activo`)
+
+---
+
+## Notas Finales
 
 1. **Motor recomendado**: MySQL 8.0+ o PostgreSQL 14+ (ambos soportan JSON nativo)
 2. **Collation**: `utf8mb4_unicode_ci` para soporte completo de caracteres español
 3. **Timezone**: Configurar servidor en UTC, convertir en aplicación según usuario
 4. **Backups**: Diarios automáticos con retención de 30 días mínimo
 5. **Testing**: Poblar con datos de prueba representativos del contexto uruguayo
+6. **Unidades de atención**: Reflejan sedes físicas (Salto, Guaviyu de Arapey, Biblioteca) y virtuales
 
 ---
 
