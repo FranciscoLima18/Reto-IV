@@ -27,21 +27,10 @@ erDiagram
     Funcionarios ||--o{ Recordatorios : "crea"
     Funcionarios ||--o{ Autodiagnosticos : "revisa"
     Funcionarios ||--o{ AuditLog : "genera"
-
-    TiposReunion ||--o{ Reuniones : "clasifica"
-    Reuniones ||--o{ Recordatorios : "genera"
-
-    Tags ||--o{ EmpresaTags : "categoriza"
-
-    Programas ||--o{ Instrumentos : "contiene"
-    Instrumentos ||--o{ EmpresaInstrumentos : "es solicitado"
-
-    Empresas {
-        int id_empresa PK "Identificador único"
-        varchar rut UK "RUT de la empresa"
-        varchar nombre_comercial "Nombre comercial"
-        varchar razon_social "Razón social"
-        varchar rubro "Sector/industria"
+    Funcionarios ||--o{ FuncionarioUnidades : "trabaja en"
+    
+    UnidadesAtencion ||--o{ Reuniones : "aloja"
+    UnidadesAtencion ||--o{ FuncionarioUnidades : "tiene asignados"
         varchar direccion "Dirección física"
         varchar telefono "Contacto telefónico"
         varchar email "Email principal"
@@ -83,11 +72,34 @@ erDiagram
         boolean requiere_seguimiento "Genera recordatorios"
     }
 
+    UnidadesAtencion {
+        int id_unidad PK "Identificador único"
+        varchar nombre UK "Nombre de la unidad"
+        enum tipo "fisica, virtual"
+        varchar direccion "Dirección física"
+        varchar ciudad "Salto, Guaviyu de Arapey, etc"
+        varchar telefono "Teléfono contacto"
+        varchar email "Email de la unidad"
+        varchar horario_atencion "Horarios de atención"
+        int capacidad_simultanea "Reuniones simultáneas"
+        boolean activo "Unidad operativa"
+        text observaciones "Notas adicionales"
+    }
+    
+    FuncionarioUnidades {
+        int id_func_unidad PK "Identificador único"
+        int id_funcionario FK "Funcionario asignado"
+        int id_unidad FK "Unidad de atención"
+        datetime fecha_asignacion "Cuándo fue asignado"
+        boolean es_responsable "Si es responsable"
+    }
+    
     Reuniones {
         int id_reunion PK "Identificador único"
         int id_empresa FK "Empresa involucrada"
         int id_funcionario FK "Funcionario responsable"
         int id_tipo_reunion FK "Tipo de reunión"
+        int id_unidad FK "Unidad donde se realiza"
         datetime fecha_hora "Fecha y hora programada"
         enum modalidad "presencial, telefonica, online, en_empresa"
         int duracion_minutos "Duración en minutos"

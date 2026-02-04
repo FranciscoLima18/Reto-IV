@@ -8,14 +8,11 @@ Empresas ─┬─< Reuniones
           ├─< EmpresaTags
           └─< EmpresaInstrumentos
 
-Funcionarios ─< Reuniones
-
-Programas ─< Instrumentos ─< EmpresaInstrumentos
-
-Reuniones ─< Recordatorios
-```
-
----
+UnidadesAtencion ─┬─< Reuniones
+                  └─< FuncionarioUnidades ─> Funcionarios
+          
+Funcionarios ─┬─< Reuniones
+              └─< FuncionarioUnidades ─> UnidadesAtencion
 
 ## 1. Empresas
 
@@ -98,7 +95,59 @@ Usuarios del sistema con diferentes roles y permisos.
 
 ---
 
-## 4. TiposReunion
+## 4. UnidadesAtencion
+
+Sedes o lugares físicos/virtuales donde Salto Innova atiende empresas.
+
+| Campo                  | Tipo                                     | Restricciones             | Descripción                            |
+| ---------------------- | ---------------------------------------- | ------------------------- | -------------------------------------- |
+| **id_unidad**          | INT                                      | PK, AUTO_INCREMENT        | Identificador único                    |
+| nombre                 | VARCHAR(200)                             | UNIQUE, NOT NULL          | Nombre de la unidad                    |
+| tipo                   | ENUM('fisica', 'virtual')                | NOT NULL                  | Tipo de unidad                         |
+| direccion              | VARCHAR(300)                             |                           | Dirección física (si aplica)           |
+| ciudad                 | VARCHAR(100)                             | NOT NULL                  | Ciudad (ej: Salto, Guaviyu de Arapey) |
+| telefono               | VARCHAR(20)                              |                           | Teléfono de contacto                   |
+| email                  | VARCHAR(100)                             |                           | Email de la unidad                     |
+| horario_atencion       | VARCHAR(200)                             |                           | Horarios de atención                   |
+| capacidad_simultanea   | INT                                      |                           | Reuniones simultáneas posibles         |
+| activo                 | BOOLEAN                                  | DEFAULT TRUE              | Unidad operativa                       |
+| observaciones          | TEXT                                     |                           | Notas adicionales                      |
+| created_at             | DATETIME                                 | DEFAULT CURRENT_TIMESTAMP |                                        |
+
+**Datos ejemplo:**
+- Sede Central - Salto (física)
+- Biblioteca Salto (física)
+- Guaviyu de Arapey (física)
+- Atención Virtual (virtual)
+
+**Índices:**
+- `idx_ciudad` en (ciudad)
+- `idx_tipo_activo` en (tipo, activo)
+
+---
+
+## 5. FuncionarioUnidades
+
+Relación muchos-a-muchos: funcionarios pueden atender en múltiples unidades.
+
+| Campo                | Tipo     | Restricciones                                       | Descripción                  |
+| -------------------- | -------- | --------------------------------------------------- | ---------------------------- |
+| **id_func_unidad**   | INT      | PK, AUTO_INCREMENT                                  | Identificador único          |
+| **id_funcionario**   | INT      | FK → Funcionarios(id_funcionario), NOT NULL         | Funcionario asignado         |
+| **id_unidad**        | INT      | FK → UnidadesAtencion(id_unidad), NOT NULL          | Unidad de atención           |
+| fecha_asignacion     | DATETIME | DEFAULT CURRENT_TIMESTAMP                           | Cuándo fue asignado          |
+| es_responsable       | BOOLEAN  | DEFAULT FALSE                                       | Si es responsable de la sede |
+
+**Restricciones:**
+- `UNIQUE(id_funcionario, id_unidad)` - Evitar asignaciones duplicadas
+
+**Índices:**
+- `idx_funcionario` en (id_funcionario)
+- `idx_unidad` en (id_unidad)
+
+---
+
+## 6. TiposReunion
 
 Catálogo de tipos de reunión del sistema.
 
@@ -145,11 +194,12 @@ Registro de todas las reuniones con empresas. Núcleo del seguimiento.
 
 - `idx_empresa_fecha` en (id_empresa, fecha_hora)
 - `idx_funcionario_fecha` en (id_funcionario, fecha_hora)
+- `idx_unidad_fecha` en (id_unidad, fecha_hora)
 - `idx_estado` en (estado)
 
 ---
 
-## 6. Tags
+## 8. Tags
 
 Sistema de etiquetado para categorizar problemas/necesidades.
 
@@ -171,7 +221,7 @@ Sistema de etiquetado para categorizar problemas/necesidades.
 - Legalidad
 
 ---
-
+9
 ## 7. EmpresaTags
 
 Relación muchos-a-muchos entre empresas y tags.
@@ -195,7 +245,7 @@ Relación muchos-a-muchos entre empresas y tags.
 - `idx_tag` en (id_tag)
 
 ---
-
+10
 ## 8. Programas
 
 Programas de apoyo disponibles en Salto Innova.
@@ -212,7 +262,7 @@ Programas de apoyo disponibles en Salto Innova.
 | poa_vinculado   | VARCHAR(100)                                                           |                    | Código POA si corresponde    |
 
 ---
-
+11
 ## 9. Instrumentos
 
 Instrumentos específicos dentro de programas (ej: subsidios, cursos, etc).
@@ -231,7 +281,7 @@ Instrumentos específicos dentro de programas (ej: subsidios, cursos, etc).
 
 ---
 
-## 10. EmpresaInstrumentos
+## 12. EmpresaInstrumentos
 
 Registro de postulaciones/derivaciones de empresas a instrumentos.
 
@@ -255,7 +305,7 @@ Registro de postulaciones/derivaciones de empresas a instrumentos.
 
 ---
 
-## 11. Recordatorios
+## 13. Recordatorios
 
 Sistema automatizado de seguimiento y notificaciones.
 
@@ -281,7 +331,7 @@ Sistema automatizado de seguimiento y notificaciones.
 
 ---
 
-## 12. Autodiagnosticos
+## 14. Autodiagnosticos
 
 Formularios de autodiagnóstico completados por empresas.
 
@@ -303,7 +353,7 @@ Formularios de autodiagnóstico completados por empresas.
 
 ---
 
-## 13. AuditLog
+## 15. AuditLog
 
 Registro de auditoría para seguridad y trazabilidad.
 
@@ -354,7 +404,20 @@ ALTER TABLE Reuniones
 
 ALTER TABLE EmpresaTags
   ADD CONSTRAINT fk_empresatag_funcionario
-  FOREIGN KEY (id_funcionario) REFERENCES Funcionarios(id_funcionario);
+ALTER TABLE Reuniones 
+  ADD CONSTRAINT fk_reunion_unidad 
+  FOREIGN KEY (id_unidad) REFERENCES UnidadesAtencion(id_unidad);
+
+-- Funcionarios y Unidades
+ALTER TABLE FuncionarioUnidades 
+  ADD CONSTRAINT fk_funcunidad_funcionario 
+  FOREIGN KEY (id_funcionario) REFERENCES Funcionarios(id_funcionario) 
+  ON DELETE CASCADE;
+
+ALTER TABLE FuncionarioUnidades 
+  ADD CONSTRAINT fk_funcunidad_unidad 
+  FOREIGN KEY (id_unidad) REFERENCES UnidadesAtencion(id_unidad) 
+  ON DELETE CASCADE;
 
 -- Programas e Instrumentos
 ALTER TABLE Instrumentos
@@ -372,7 +435,35 @@ ALTER TABLE EmpresaInstrumentos
 -- Reuniones y Recordatorios
 ALTER TABLE Recordatorios
   ADD CONSTRAINT fk_recordatorio_reunion
-  FOREIGN KEY (id_reunion) REFERENCES Reuniones(id_reunion)
+  FQueries Adicionales
+
+### 5. Carga por unidad de atención
+```sql
+SELECT u.nombre as unidad,
+       COUNT(r.id_reunion) as reuniones_programadas,
+       AVG(r.duracion_minutos) as duracion_promedio
+FROM UnidadesAtencion u
+LEFT JOIN Reuniones r ON u.id_unidad = r.id_unidad
+WHERE r.estado = 'programada'
+  AND r.fecha_hora >= NOW()
+GROUP BY u.id_unidad
+ORDER BY reuniones_programadas DESC;
+```
+
+### 6. Funcionarios por unidad
+```sql
+SELECT u.nombre as unidad,
+       COUNT(fu.id_funcionario) as total_funcionarios,
+       SUM(CASE WHEN fu.es_responsable THEN 1 ELSE 0 END) as responsables
+FROM UnidadesAtencion u
+LEFT JOIN FuncionarioUnidades fu ON u.id_unidad = fu.id_unidad
+WHERE u.activo = TRUE
+GROUP BY u.id_unidad;
+```
+
+---
+
+## OREIGN KEY (id_reunion) REFERENCES Reuniones(id_reunion)
   ON DELETE CASCADE;
 
 ALTER TABLE Recordatorios
@@ -479,6 +570,7 @@ ORDER BY r.fecha_envio ASC;
 └────────┬────────┘               └──────────────────┘
          │
          │ 1
+6. **Unidades de atención**: Reflejan sedes físicas (Salto, Guaviyu de Arapey, Biblioteca) y virtuales
          │
          │ ∞
          │
